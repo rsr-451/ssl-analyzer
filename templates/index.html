@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSL Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for sleek, futuristic design */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212; /* Very dark gray, almost black */
+            color: #E0E0E0; /* Light gray for primary text */
+            padding: 0.5rem; /* Reduced overall body padding */
+        }
+        @media (min-width: 640px) { /* sm breakpoint */
+            body {
+                padding: 1rem; /* Reduced padding for sm screens */
+            }
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            body {
+                padding: 1.5rem; /* Reduced padding for md screens */
+            }
+        }
+
+        .futuristic-card {
+            background-color: #1E1E1E; /* Slightly lighter dark gray for card */
+            border: 1px solid #333333; /* Subtle dark border */
+            box-shadow: 0 4px 15px rgba(0, 192, 255, 0.2), 0 0 25px rgba(0, 192, 255, 0.08); /* Electric blue glow */
+            transition: all 0.3s ease-in-out;
+            border-radius: 1rem; /* More rounded corners */
+            padding: 1rem; /* Consistent padding for the card */
+        }
+        .futuristic-card:hover {
+            box-shadow: 0 6px 20px rgba(0, 192, 255, 0.3), 0 0 35px rgba(0, 192, 255, 0.15);
+        }
+        .futuristic-input {
+            background-color: #121212; /* Darker input background */
+            border: 1px solid #333333;
+            color: #E0E0E0;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            border-radius: 0.5rem; /* Rounded input corners */
+        }
+        .futuristic-input:focus {
+            border-color: #00C0FF; /* Electric blue focus ring */
+            box-shadow: 0 0 0 2px rgba(0, 192, 255, 0.5);
+        }
+        .futuristic-button {
+            background: linear-gradient(45deg, #00C0FF, #8A2BE2); /* Electric blue to Blue-violet gradient */
+            box-shadow: 0 4px 12px rgba(0, 192, 255, 0.4);
+            transition: all 0.3s ease-in-out;
+            border-radius: 0.75rem; /* More rounded button corners */
+            color: #FFFFFF; /* White text for buttons */
+        }
+        .futuristic-button:hover {
+            background: linear-gradient(45deg, #8A2BE2, #00C0FF); /* Reverse gradient on hover */
+            box-shadow: 0 6px 15px rgba(0, 192, 255, 0.6);
+            transform: translateY(-2px);
+        }
+        /* Keeping this class for now, though button is removed */
+        .futuristic-summary-btn:hover {
+            background: linear-gradient(45deg, #FF00FF, #00C0FF); /* Example: Magenta to Electric Blue */
+            box-shadow: 0 6px 15px rgba(255, 0, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        .futuristic-table th, .futuristic-table td {
+            border-bottom: 1px solid #333333; /* Darker table borders */
+            padding-top: 0.4rem; /* Slightly more padding for readability */
+            padding-bottom: 0.4rem; /* Slightly more padding for readability */
+        }
+        .futuristic-table thead th {
+            background-color: #282828; /* Darker gray header background */
+            color: #00C0FF; /* Electric blue header text */
+            font-weight: 600; /* Slightly bolder headers */
+        }
+        .futuristic-table tbody tr:nth-child(odd) {
+            background-color: #1A1A1A; /* Darker odd rows */
+        }
+        .futuristic-table tbody tr:nth-child(even) {
+            background-color: #1E1E1E; /* Even darker even rows */
+        }
+        .futuristic-table tbody tr:hover {
+            background-color: #282828; /* Darker on hover */
+        }
+        .futuristic-status-good {
+            background-color: #2C3E50; /* Dark blue-gray background */
+            border-color: #27AE60; /* Emerald green border */
+            color: #27AE60; /* Emerald green text */
+            border-radius: 1rem;
+        }
+        .futuristic-status-error {
+            background-color: #34495E; /* Dark blue-gray background */
+            border-color: #E74C3C; /* Red border */
+            color: #E74C3C; /* Red text */
+            border-radius: 1rem;
+        }
+        /* Further compacting list items within table cells */
+        .futuristic-list ul {
+            margin-top: 0;
+            margin-bottom: 0;
+            padding-left: 1.25rem; /* Default list padding */
+        }
+        .futuristic-list ul li {
+            margin-bottom: 0.1rem; /* Very small margin between list items */
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+    <div class="max-w-full mx-auto rounded-xl shadow-lg p-4 sm:p-6 md:p-8 futuristic-card">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center text-blue-400 mb-3 font-mono">SSL Analyzer // v2.0</h1>
+
+        <form action="/" method="post" class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+            <label for="hostname" class="sr-only">Enter Domain Name:</label>
+            <input type="text" id="hostname" name="hostname" placeholder="e.g., secure.domain.com"
+                   value="{{ hostname_searched if hostname_searched else '' }}" required
+                   class="w-full sm:w-2/3 md:w-1/2 p-3 rounded-lg focus:outline-none futuristic-input text-lg">
+            <button type="submit"
+                    class="w-full sm:w-auto px-6 py-3 font-semibold rounded-lg shadow-md futuristic-button flex items-center justify-center gap-2">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                Analyze SSL
+            </button>
+        </form>
+
+        {% if error %}
+            <div class="px-4 py-3 rounded-lg relative futuristic-status-error" role="alert">
+                <strong class="font-bold">Error!</strong>
+                <span class="block sm:inline">{{ error }}</span>
+            </div>
+        {% elif ssl_info %}
+            {% if ssl_info.status == 'success' %}
+                <div class="px-4 py-3 rounded-lg relative mb-6 futuristic-status-good">
+                    <h2 class="text-2xl font-semibold mb-3 text-blue-400">Certificate Report for <span class="text-purple-400 font-mono">{{ ssl_info.hostname }}</span></h2>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {# Left Column: Main Certificate Details #}
+                        <div>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full rounded-lg futuristic-table">
+                                    <thead>
+                                        <tr>
+                                            <th class="py-2 px-4 text-left text-sm font-medium uppercase">Field</th>
+                                            <th class="py-2 px-4 text-left text-sm font-medium uppercase">Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Common Name (Subject)</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.subject['CN'] if 'CN' in ssl_info.subject else 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Organization (Subject)</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.subject['O'] if 'O' in ssl_info.subject else 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Locality (Subject)</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.subject['L'] if 'L' in ssl_info.subject else 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">State (Subject)</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.subject['ST'] if 'ST' in ssl_info.subject else 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Country (Subject)</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.subject['C'] if 'C' in ssl_info.subject else 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Issuer Common Name</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.issuer['CN'] if 'CN' in ssl_info.issuer else 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Issuer Organization</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.issuer['O'] if 'O' in ssl_info.issuer else 'N/A' }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Valid From</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.valid_from }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Valid Until</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.valid_until }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Serial Number</td>
+                                            <td class="py-2 px-4 font-mono text-xs whitespace-nowrap">{{ ssl_info.serial_number }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Version</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.version }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">SHA256 Fingerprint</td>
+                                            <td class="py-2 px-4 font-mono text-xs break-all">{{ ssl_info.fingerprint_sha256 }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Public Key Type</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.public_key_type }}</td>
+                                        </tr>
+                                        <tr class="hover:bg-gray-50">
+                                            <td class="py-2 px-4 whitespace-nowrap">Public Key Bits</td>
+                                            <td class="py-2 px-4 text-xs whitespace-nowrap">{{ ssl_info.public_key_bits }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {# Right Column: SANs and CRL Distribution Points #}
+                        <div class="space-y-6">
+                            {# SANs Section #}
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2 text-blue-400">Subject Alternative Names (SANs)</h3>
+                                <ul class="list-disc list-inside text-xs futuristic-list">
+                                    {% for san in ssl_info.subject_alternative_names %}
+                                        {% if loop.index <= 10 %}
+                                            <li class="break-all whitespace-nowrap">{{ san }}</li>
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if ssl_info.subject_alternative_names | length > 10 %}
+                                        <div id="moreSans" class="hidden">
+                                            {% for san in ssl_info.subject_alternative_names %}
+                                                {% if loop.index > 10 %}
+                                                    <li class="break-all whitespace-nowrap">{{ san }}</li>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        <li><button id="toggleSansBtn" class="text-purple-400 hover:text-purple-300 underline mt-1 text-xs">Show More ({{ ssl_info.subject_alternative_names | length - 10 }} more)</button></li>
+                                    {% elif not ssl_info.subject_alternative_names %}
+                                        <li>No SANs found.</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+
+                            {# CRL Distribution Points Section #}
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2 text-blue-400">CRL Distribution Points</h3>
+                                <ul class="list-disc list-inside text-xs futuristic-list">
+                                    {% for crl_url in ssl_info.crl_distribution_points %}
+                                        <li class="break-all whitespace-nowrap">{{ crl_url }}</li>
+                                    {% else %}
+                                        <li>No CRL Distribution Points found.</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            {# OCSP Status Section (Moved to right column for better balance) #}
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2 text-blue-400">OCSP Status</h3>
+                                <div class="p-2 rounded-lg bg-gray-700 text-xs">
+                                    <p><span class="font-semibold text-blue-300 whitespace-nowrap">Status:</span> <span class="whitespace-nowrap">{{ ssl_info.ocsp_status }}</span></p>
+                                    <p class="break-all"><span class="font-semibold text-blue-300 whitespace-nowrap">URL:</span> <span class="whitespace-nowrap">{{ ssl_info.ocsp_url if ssl_info.ocsp_url else 'N/A' }}</span></p>
+                                </div>
+                            </div>
+
+                            {# NEW: Key Usage Section #}
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2 text-blue-400">Key Usage</h3>
+                                <div class="p-2 rounded-lg bg-gray-700 text-xs">
+                                    <p class="whitespace-nowrap">{{ ssl_info.key_usage }}</p>
+                                </div>
+                            </div>
+
+                            {# NEW: Extended Key Usage Section #}
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2 text-blue-400">Extended Key Usage</h3>
+                                <div class="p-2 rounded-lg bg-gray-700 text-xs">
+                                    <p class="whitespace-nowrap">{{ ssl_info.extended_key_usage }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="px-4 py-3 rounded-lg relative futuristic-status-error" role="alert">
+                    <h2 class="text-2xl font-semibold mb-3 text-red-400">Error Analyzing SSL Certificate for <span class="text-red-300 font-mono">{{ hostname_searched }}</span></h2>
+                    <p class="mb-2"><strong>Message:</strong> {{ error }}</p>
+                    <p class="text-sm">Please ensure the domain name is correct and accessible, and that it uses HTTPS.</p>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleSansBtn = document.getElementById('toggleSansBtn');
+            const moreSansDiv = document.getElementById('moreSans');
+
+            if (toggleSansBtn && moreSansDiv) {
+                let isShowingAllSans = false;
+
+                toggleSansBtn.addEventListener('click', () => {
+                    if (isShowingAllSans) {
+                        moreSansDiv.classList.add('hidden');
+                        toggleSansBtn.textContent = `Show More ({{ ssl_info.subject_alternative_names | length - 10 }} more)`;
+                    } else {
+                        moreSansDiv.classList.remove('hidden');
+                        toggleSansBtn.textContent = 'Show Less';
+                    }
+                    isShowingAllSans = !isShowingAllSans;
+                });
+            }
+        });
+    </script>
+    <script id="sslInfoJson" type="application/json">
+        {{ ssl_info | tojson if ssl_info is not none else '{}' }}
+    </script>
+</body>
+</html>
