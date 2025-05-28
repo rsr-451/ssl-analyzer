@@ -648,7 +648,7 @@ def summarize_certificate():
     Keep the summary to 2-3 sentences maximum. Start directly with the most critical finding.
     """
 
-    apiKey = "AIzaSyB_aRREd7fi1wX5G3LDkEYNm0Z4g76y3lY" # If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+    apiKey = "*************" # If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
     if not apiKey:
         return jsonify({"error": "Gemini API Key is not configured in app.py"}), 500
 
