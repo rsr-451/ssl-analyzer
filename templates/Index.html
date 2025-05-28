@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSL Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for sleek, futuristic design */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #121212; /* Very dark gray, almost black */
+            color: #E0E0E0; /* Light gray for primary text */
+            padding: 0.5rem; /* Reduced overall body padding */
+        }
+        @media (min-width: 640px) { /* sm breakpoint */
+            body {
+                padding: 1rem; /* Reduced padding for sm screens */
+            }
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            body {
+                padding: 1.5rem; /* Reduced padding for md screens */
+            }
+        }
+
+        .futuristic-card {
+            background-color: #1E1E1E; /* Slightly lighter dark gray for card */
+            border: 1px solid #333333; /* Subtle dark border */
+            box-shadow: 0 4px 15px rgba(0, 192, 255, 0.2), 0 0 25px rgba(0, 192, 255, 0.08); /* Electric blue glow */
+            transition: all 0.3s ease-in-out;
+            border-radius: 1rem; /* More rounded corners */
+            padding: 1rem; /* Consistent padding for the card */
+        }
+        .futuristic-card:hover {
+            box-shadow: 0 6px 20px rgba(0, 192, 255, 0.3), 0 0 35px rgba(0, 192, 255, 0.15);
+        }
+        .futuristic-input {
+            background-color: #121212; /* Darker input background */
+            border: 1px solid #333333;
+            color: #E0E0E0;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            border-radius: 0.5rem; /* Rounded input corners */
+        }
+        .futuristic-input:focus {
+            border-color: #00C0FF; /* Electric blue focus ring */
+            box-shadow: 0 0 0 2px rgba(0, 192, 255, 0.5);
+        }
+        .futuristic-button {
+            background: linear-gradient(45deg, #00C0FF, #8A2BE2); /* Electric blue to Blue-violet gradient */
+            box-shadow: 0 4px 12px rgba(0, 192, 255, 0.4);
+            transition: all 0.3s ease-in-out;
+            border-radius: 0.75rem; /* More rounded button corners */
+            color: #FFFFFF; /* White text for buttons */
+        }
+        .futuristic-button:hover {
+            background: linear-gradient(45deg, #8A2BE2, #00C0FF); /* Reverse gradient on hover */
+            box-shadow: 0 6px 15px rgba(0, 192, 255, 0.6);
+            transform: translateY(-2px);
+        }
+        /* Keeping this class for now, though button is removed */
+        .futuristic-summary-btn:hover {
+            background: linear-gradient(45deg, #FF00FF, #00C0FF); /* Example: Magenta to Electric Blue */
+            box-shadow: 0 6px 15px rgba(255, 0, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        .futuristic-table {
+            width: 100%; /* Ensure table takes full width */
+            border-collapse: separate; /* Allows border-radius on cells */
+            border-spacing: 0; /* Remove space between cell borders */
+            border-radius: 0.75rem; /* Apply border-radius to the table itself */
+            overflow: hidden; /* Ensures content doesn't spill out of rounded corners */
+        }
+        .futuristic-table th, .futuristic-table td {
+            border-bottom: 1px solid #333333; /* Darker table borders */
+            padding-top: 0.75rem; /* Slightly more padding for readability */
+            padding-bottom: 0.75rem; /* Slightly more padding for readability */
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+        .futuristic-table thead th {
+            background-color: #282828; /* Darker gray header background */
+            color: #00C0FF; /* Electric blue header text */
+            font-weight: 600; /* Slightly bolder headers */
+            text-align: left;
+        }
+        .futuristic-table tbody tr:nth-child(odd) {
+            background-color: #1A1A1A; /* Darker odd rows */
+        }
+        .futuristic-table tbody tr:nth-child(even) {
+            background-color: #1E1E1E; /* Even darker even rows */
+        }
+        .futuristic-table tbody tr:hover {
+            background-color: #282828; /* Darker on hover */
+        }
+        .futuristic-status-good {
+            background-color: #2C3E50; /* Dark blue-gray background */
+            border: 1px solid #27AE60; /* Emerald green border */
+            color: #27AE60; /* Emerald green text */
+            border-radius: 0.5rem; /* Consistent with input/button */
+            padding: 0.5rem 1rem; /* Padding for status tags */
+            display: inline-block; /* To make padding work */
+            font-weight: 600;
+        }
+        .futuristic-status-error {
+            background-color: #34495E; /* Dark blue-gray background */
+            border: 1px solid #E74C3C; /* Red border */
+            color: #E74C3C; /* Red text */
+            border-radius: 0.5rem; /* Consistent with input/button */
+            padding: 0.5rem 1rem; /* Padding for status tags */
+            display: inline-block; /* To make padding work */
+            font-weight: bold; /* Made text bold for error status */
+        }
+        .futuristic-status-warning { /* Style for warnings, e.g., Unknown CRL status */
+            background-color: #3D3327; /* Dark orange-brown */
+            border: 1px solid #F39C12; /* Orange border */
+            color: #F39C12; /* Orange text */
+            border-radius: 0.5rem; /* Consistent with input/button */
+            padding: 0.5rem 1rem; /* Padding for status tags */
+            display: inline-block; /* To make padding work */
+            font-weight: 600;
+        }
+        /* Further compacting list items within table cells */
+        .futuristic-list ul {
+            margin-top: 0;
+            margin-bottom: 0;
+            padding-left: 1.25rem; /* Default list padding */
+        }
+        .futuristic-list ul li {
+            margin-bottom: 0.1rem; /* Very small margin between list items */
+        }
+
+        /* Simple loading animation */
+        .loading-dots::after {
+            content: ' .';
+            animation: dots 1s steps(5, end) infinite;
+        }
+        @keyframes dots {
+            0%, 20% {
+                color: rgba(0,0,0,0);
+                text-shadow:
+                    .25em 0 0 rgba(0,0,0,0),
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            40% {
+                color: #E0E0E0; /* Use primary text color for dots */
+                text-shadow:
+                    .25em 0 0 rgba(0,0,0,0),
+                    .5em 0 0 rgba(0,0,0,0);
+            }
+            60% {
+                text-shadow:
+                    .25em 0 0 #E0E0E0,
+                    .5em 0 0 #E0E0E0;
+            }
+            80%, 100% {
+                text-shadow:
+                    .25em 0 0 #E0E0E0,
+                    .5em 0 0 #E0E0E0;
+            }
+        }
+        /* Styles for the summary box */
+        .summary-box {
+            background-color: #1A1A1A; /* Darker background for summary */
+            border: 1px solid #333333;
+            box-shadow: 0 2px 10px rgba(0, 192, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            margin-top: 2rem;
+        }
+        .summary-box h3 {
+            color: #00C0FF; /* Electric blue heading */
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.5rem; /* Larger heading */
+        }
+        .summary-box p {
+            line-height: 1.8; /* More spacious text */
+            color: #B0B0B0; /* Slightly dimmer text for summary */
+        }
+
+        /* Initial content/loading spinner container */
+        #initial-content {
+            min-height: 100px; /* Reduced min-height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #B0B0B0;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 192, 255, 0.2);
+            border-top: 4px solid #00C0FF;
+            border-radius: 50%;
+            width: 20px; /* Smaller spinner */
+            height: 20px; /* Smaller spinner */
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem; /* Space between spinner and text */
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 md:p-8">
+    <div id="main-content-container" class="max-w-full mx-auto rounded-xl shadow-lg p-4 sm:p-6 md:p-8 futuristic-card">
+        <h1 class="text-3xl sm:text-4xl font-bold text-center text-blue-400 mb-3 font-mono">TLS/SSL Certificate Check</h1>
+
+        <form id="ssl-analysis-form" class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-4"> {# Changed mb-6 to mb-4 #}
+            <label for="hostname" class="sr-only">Enter Domain Name:</label>
+            <input type="text" id="hostname" name="hostname" placeholder="e.g., secure.domain.com"
+                   value="" required
+                   class="w-full sm:w-2/3 md:w-1/2 p-3 rounded-lg focus:outline-none futuristic-input text-lg">
+            <button type="submit" id="analyze-button"
+                    class="w-full sm:w-auto px-6 py-3 font-semibold rounded-lg shadow-md futuristic-button flex items-center justify-center gap-2">
+                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>
+                <span>Analyze SSL</span>
+            </button>
+        </form>
+
+        <div id="content-area">
+            <div id="initial-content">
+                <p class="text-lg">Enter a domain name above to analyze its SSL/TLS certificate. (UI Version 1.2)</p>
+            </div>
+            <div id="error-message" class="hidden px-4 py-3 rounded-lg relative futuristic-status-error" role="alert">
+                <strong class="font-bold" id="error-title">Error!</strong>
+                <span class="block sm:inline" id="error-text"></span>
+            </div>
+            <div id="certificate-report" class="hidden px-4 py-3 rounded-lg relative mb-6 futuristic-status-good">
+                <h2 class="text-2xl font-semibold mb-3 text-blue-400">Certificate Report for <span class="text-purple-400 font-mono" id="report-hostname"></span></h2>
+
+                {# Overall Status Message #}
+                <div id="overall-status-message" class="mb-4 text-center text-lg font-semibold flex items-center justify-center hidden">
+                    <div class="spinner mr-2 hidden" id="overall-spinner"></div>
+                    <span id="overall-status-text"></span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {# Left Column: Main Certificate Details #}
+                    <div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full rounded-lg futuristic-table">
+                                <thead>
+                                    <tr>
+                                        <th class="py-2 px-4 text-left text-sm font-medium uppercase">Field</th>
+                                        <th class="py-2 px-4 text-left text-sm font-medium uppercase">Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Common Name (Subject)</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="subject-cn"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Organization (Subject)</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="subject-o"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Locality (Subject)</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="subject-l"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">State (Subject)</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="subject-st"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Country (Subject)</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="subject-c"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Issuer Common Name</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="issuer-cn"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Issuer Organization</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="issuer-o"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Valid From</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="valid-from"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Valid Until</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="valid-until"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Serial Number</td><td class="py-2 px-4 font-mono text-xs whitespace-nowrap" id="serial-number"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Version</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="version"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">SHA256 Fingerprint</td><td class="py-2 px-4 font-mono text-xs break-all" id="fingerprint-sha256"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Public Key Type</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="public-key-type"></td></tr>
+                                    <tr><td class="py-2 px-4 whitespace-nowrap">Public Key Bits</td><td class="py-2 px-4 text-xs whitespace-nowrap" id="public-key-bits"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        {# SANs Section - remains in left column #}
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-xl font-semibold mb-2 text-blue-400">Subject Alternative Names (SANs)</h3>
+                                <div class="p-3 rounded-lg bg-gray-700 futuristic-list">
+                                    <ul id="sans-list" class="list-disc list-inside text-xs">
+                                        <li>No SANs found.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {# Right Column: AI Summary #}
+                    <div class="summary-box">
+                        <h3>AI-Powered Certificate Summary</h3>
+                        <p id="gemini-summary">Loading summary...</p>
+                    </div>
+                </div>
+
+                {# NEW SECTION: Additional Details (moved from left column) #}
+                <div id="additional-details" class="mt-6 space-y-6">
+                    {# Public Key Blacklist Status Section (now a standalone div) #}
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2 text-blue-400">Public Key Blacklist Status</h3>
+                        <div id="public-key-blacklist-status-container" class="p-3 rounded-lg bg-gray-700 text-xs">
+                            <p><span id="public-key-blacklist-status" class="loading-dots">Loading...</span></p>
+                        </div>
+                    </div>
+
+                    {# OCSP Status Section #}
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2 text-blue-400">OCSP Status</h3>
+                        <div id="ocsp-status-container" class="p-3 rounded-lg bg-gray-700 text-xs">
+                            <p><span class="font-semibold text-blue-300 whitespace-nowrap">Status:</span> <span id="ocsp-status" class="loading-dots">Loading...</span></p>
+                            <p class="break-all"><span class="font-semibold text-blue-300 whitespace-nowrap">URL:</span> <span id="ocsp-url" class="whitespace-nowrap">N/A</span></p>
+                        </div>
+                    </div>
+
+                    {# CRL Distribution Points Section #}
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2 text-blue-400">CRL Distribution Points</h3>
+                        <div class="p-3 rounded-lg bg-gray-700 futuristic-list">
+                            <ul id="crl-list" class="list-disc list-inside text-xs">
+                                <li>No CRL Distribution Points found.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    {# CRL Revocation Status Section #}
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2 text-blue-400">CRL Revocation Status</h3>
+                        <div id="crl-status-container" class="p-3 rounded-lg bg-gray-700 text-xs">
+                            <p><span id="crl-status" class="loading-dots">Loading...</span></p>
+                        </div>
+                    </div>
+
+                    {# Key Usage Section #}
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2 text-blue-400">Key Usage</h3>
+                        <div class="p-3 rounded-lg bg-gray-700 text-xs">
+                            <p id="key-usage" class="whitespace-nowrap"></p>
+                        </div>
+                    </div>
+
+                    {# Extended Key Usage Section #}
+                    <div>
+                        <h3 class="text-xl font-semibold mb-2 text-blue-400">Extended Key Usage</h3>
+                        <div class="p-3 rounded-lg bg-gray-700 text-xs">
+                            <p id="extended-key-usage" class="whitespace-nowrap"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sslAnalysisForm = document.getElementById('ssl-analysis-form');
+            const hostnameInput = document.getElementById('hostname');
+            const analyzeButton = document.getElementById('analyze-button');
+            const analyzeButtonText = analyzeButton.querySelector('span'); // Get the span for text
+            const analyzeButtonIcon = analyzeButton.querySelector('svg'); // Get the SVG icon
+
+            const initialContent = document.getElementById('initial-content');
+            const certificateReport = document.getElementById('certificate-report');
+            const errorMessageDiv = document.getElementById('error-message');
+            const errorTitle = document.getElementById('error-title');
+            const errorText = document.getElementById('error-text');
+
+            // New overall status elements
+            const overallStatusMessage = document.getElementById('overall-status-message');
+            const overallStatusText = document.getElementById('overall-status-text');
+            const overallSpinner = document.getElementById('overall-spinner');
+
+
+            // Elements for dynamic content
+            const reportHostname = document.getElementById('report-hostname');
+            const subjectCn = document.getElementById('subject-cn');
+            const subjectO = document.getElementById('subject-o');
+            const subjectL = document.getElementById('subject-l');
+            const subjectSt = document.getElementById('subject-st');
+            const subjectC = document.getElementById('subject-c');
+            const issuerCn = document.getElementById('issuer-cn');
+            const issuerO = document.getElementById('issuer-o');
+            const validFrom = document.getElementById('valid-from');
+            const validUntil = document.getElementById('valid-until');
+            const serialNumber = document.getElementById('serial-number');
+            const version = document.getElementById('version');
+            const fingerprintSha256 = document.getElementById('fingerprint-sha256');
+            const publicKeyType = document.getElementById('public-key-type');
+            const publicKeyBits = document.getElementById('public-key-bits');
+            const publicKeyBlacklistStatusElement = document.getElementById('public-key-blacklist-status'); // Element for blacklist status
+            const publicKeyBlacklistStatusContainer = document.getElementById('public-key-blacklist-status-container'); // Container for styling
+            const sansList = document.getElementById('sans-list');
+            const ocspUrl = document.getElementById('ocsp-url');
+            const crlList = document.getElementById('crl-list');
+            const keyUsage = document.getElementById('key-usage');
+            const extendedKeyUsage = document.getElementById('extended-key-usage');
+
+            let currentSslInfo = {}; // To store the fetched SSL info
+
+            // Function to show/hide sections
+            function showSection(sectionElement) {
+                initialContent.classList.add('hidden');
+                certificateReport.classList.add('hidden');
+                errorMessageDiv.classList.add('hidden');
+                overallStatusMessage.classList.add('hidden'); // Hide overall status by default
+                sectionElement.classList.remove('hidden');
+            }
+
+            // Function to display SSL info
+            function displaySslInfo(sslInfo) {
+                currentSslInfo = sslInfo; // Store for later use by async functions
+                showSection(certificateReport); // Show the main report area
+
+                // Update overall status message for subsequent checks
+                overallStatusMessage.classList.remove('hidden');
+                overallSpinner.classList.remove('hidden');
+                overallStatusText.textContent = `Checking revocation and generating summary for ${sslInfo.hostname}...`;
+                overallStatusMessage.style.color = '#00C0FF'; // Blue for in-progress
+
+                reportHostname.textContent = sslInfo.hostname;
+                subjectCn.textContent = sslInfo.subject.CN || 'N/A';
+                subjectO.textContent = sslInfo.subject.O || 'N/A';
+                subjectL.textContent = sslInfo.subject.L || 'N/A';
+                subjectSt.textContent = sslInfo.subject.ST || 'N/A';
+                subjectC.textContent = sslInfo.subject.C || 'N/A';
+                issuerCn.textContent = sslInfo.issuer.CN || 'N/A';
+                issuerO.textContent = sslInfo.issuer.O || 'N/A';
+                validFrom.textContent = sslInfo.valid_from;
+                validUntil.textContent = sslInfo.valid_until;
+                serialNumber.textContent = sslInfo.serial_number;
+                version.textContent = sslInfo.version;
+                fingerprintSha256.textContent = sslInfo.fingerprint_sha256;
+                publicKeyType.textContent = sslInfo.public_key_type;
+                publicKeyBits.textContent = sslInfo.public_key_bits;
+                publicKeyBlacklistStatusElement.textContent = sslInfo.public_key_blacklist_status; // Populate new field
+
+                // Apply status styling to public_key_blacklist_status
+                publicKeyBlacklistStatusContainer.classList.remove('futuristic-status-good', 'futuristic-status-error', 'futuristic-status-warning');
+                if (sslInfo.public_key_blacklist_status && sslInfo.public_key_blacklist_status.includes('Blacklisted')) {
+                    publicKeyBlacklistStatusContainer.classList.add('futuristic-status-error');
+                } else if (sslInfo.public_key_blacklist_status && sslInfo.public_key_blacklist_status.includes('Not Blacklisted')) {
+                    publicKeyBlacklistStatusContainer.classList.add('futuristic-status-good');
+                } else {
+                    publicKeyBlacklistStatusContainer.classList.add('futuristic-status-warning');
+                }
+
+
+                // Populate SANs
+                sansList.innerHTML = ''; // Clear previous
+                if (sslInfo.subject_alternative_names && sslInfo.subject_alternative_names.length > 0) {
+                    sslInfo.subject_alternative_names.forEach((san, index) => {
+                        if (index < 10) { // Show first 10 directly
+                            const li = document.createElement('li');
+                            li.textContent = san;
+                            sansList.appendChild(li);
+                        }
+                    });
+                    if (sslInfo.subject_alternative_names.length > 10) {
+                        const moreSansDiv = document.createElement('div');
+                        moreSansDiv.id = 'moreSans';
+                        moreSansDiv.classList.add('hidden');
+                        sslInfo.subject_alternative_names.slice(10).forEach(san => {
+                            const li = document.createElement('li');
+                            li.textContent = san;
+                            moreSansDiv.appendChild(li);
+                        });
+                        sansList.appendChild(moreSansDiv);
+
+                        const toggleBtn = document.createElement('button');
+                        toggleBtn.id = 'toggleSansBtn';
+                        toggleBtn.classList.add('text-purple-400', 'hover:text-purple-300', 'underline', 'mt-1', 'text-xs');
+                        toggleBtn.textContent = `Show More (${sslInfo.subject_alternative_names.length - 10} more)`;
+                        toggleBtn.addEventListener('click', () => {
+                            if (moreSansDiv.classList.contains('hidden')) {
+                                moreSansDiv.classList.remove('hidden');
+                                toggleBtn.textContent = 'Show Less';
+                            } else {
+                                moreSansDiv.classList.add('hidden');
+                                toggleBtn.textContent = `Show More (${sslInfo.subject_alternative_names.length - 10} more)`;
+                            }
+                        });
+                        const li = document.createElement('li');
+                        li.appendChild(toggleBtn);
+                        sansList.appendChild(li);
+                    }
+                } else {
+                    const li = document.createElement('li');
+                    li.textContent = 'No SANs found.';
+                    sansList.appendChild(li);
+                }
+
+                ocspUrl.textContent = sslInfo.ocsp_url || 'N/A';
+
+                // Populate CRLs
+                crlList.innerHTML = ''; // Clear previous
+                if (sslInfo.crl_distribution_points && sslInfo.crl_distribution_points.length > 0) {
+                    sslInfo.crl_distribution_points.forEach(crl_url => {
+                        const li = document.createElement('li');
+                        li.textContent = crl_url;
+                        crlList.appendChild(li);
+                    });
+                } else {
+                    const li = document.createElement('li');
+                    li.textContent = 'No CRL Distribution Points found.';
+                    crlList.appendChild(li);
+                }
+
+                keyUsage.textContent = sslInfo.key_usage;
+                extendedKeyUsage.textContent = sslInfo.extended_key_usage;
+
+                // Initiate async checks and wait for them
+                fetchRevocationStatus(sslInfo)
+                    .then(() => fetchGeminiSummary(currentSslInfo)) // Call summary AFTER revocation is done
+                    .then(() => {
+                        // All async operations are complete
+                        overallSpinner.classList.add('hidden');
+                        overallStatusText.textContent = 'Analysis Complete!';
+                        overallStatusMessage.style.color = '#27AE60'; // Green for complete
+                    })
+                    .catch(error => {
+                        // Handle errors from either fetchRevocationStatus or fetchGeminiSummary
+                        overallSpinner.classList.add('hidden');
+                        overallStatusText.textContent = `Analysis completed with some errors: ${error.message || error}`;
+                        overallStatusMessage.style.color = '#E74C3C'; // Red for errors
+                        console.error("Overall analysis completed with errors:", error);
+                    });
+            }
+
+            // Function to display error message
+            function displayError(title, message) {
+                showSection(errorMessageDiv);
+                errorTitle.textContent = title;
+                errorText.textContent = message;
+                // Also update summary section to reflect error
+                const summaryElement = document.getElementById('gemini-summary');
+                if (summaryElement) {
+                    summaryElement.textContent = `Cannot generate summary due to analysis error: ${message}`;
+                    summaryElement.style.color = 'red';
+                }
+            }
+
+            // Handle form submission
+            sslAnalysisForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                const hostname = hostnameInput.value.trim();
+                if (!hostname) {
+                    displayError('Input Error!', 'Please enter a hostname to analyze.');
+                    return;
+                }
+
+                // Show loading state on button
+                analyzeButton.disabled = true;
+                analyzeButtonText.textContent = 'Analyzing...';
+                analyzeButtonIcon.innerHTML = '<div class="spinner"></div>'; // Replace icon with spinner
+
+                // Show the certificate report area immediately and set initial loading message
+                showSection(certificateReport); // This hides initial-content
+                overallStatusMessage.classList.remove('hidden'); // Ensure overall status is visible
+                overallSpinner.classList.remove('hidden'); // Ensure spinner is visible
+                overallStatusText.textContent = `Fetching certificate for ${hostname}...`; // Set initial fetching message
+                overallStatusMessage.style.color = '#00C0FF'; // Blue for in-progress
+
+                // Reset dynamic content for new analysis
+                document.getElementById('ocsp-status').textContent = 'Loading...';
+                document.getElementById('ocsp-status').classList.add('loading-dots');
+                document.getElementById('ocsp-status-container').classList.remove('futuristic-status-good', 'futuristic-status-error', 'futuristic-status-warning');
+                document.getElementById('ocsp-status-container').classList.add('bg-gray-700');
+
+                document.getElementById('crl-status').textContent = 'Loading...';
+                document.getElementById('crl-status').classList.add('loading-dots');
+                document.getElementById('crl-status-container').classList.remove('futuristic-status-good', 'futuristic-status-error', 'futuristic-status-warning');
+                document.getElementById('crl-status-container').classList.add('bg-gray-700');
+
+                document.getElementById('public-key-blacklist-status').textContent = 'Loading...'; // Reset blacklist status
+                document.getElementById('public-key-blacklist-status').classList.add('loading-dots');
+                publicKeyBlacklistStatusContainer.classList.remove('futuristic-status-good', 'futuristic-status-error', 'futuristic-status-warning');
+                publicKeyBlacklistStatusContainer.classList.add('bg-gray-700');
+
+                document.getElementById('gemini-summary').textContent = 'Loading summary...';
+                document.getElementById('gemini-summary').classList.add('loading-dots');
+                document.getElementById('gemini-summary').style.color = '';
+
+
+                fetch('/analyze_ssl_api', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ hostname: hostname })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Re-enable button and restore icon
+                    analyzeButton.disabled = false;
+                    analyzeButtonText.textContent = 'Analyze SSL';
+                    analyzeButtonIcon.innerHTML = '<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>';
+
+                    if (data.status === 'success') {
+                        displaySslInfo(data);
+                    } else {
+                        // On error, hide the overall status message and show the error message
+                        overallStatusMessage.classList.add('hidden');
+                        displayError(`Error Analyzing SSL Certificate for ${hostname}`, data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching SSL info:', error);
+                    // Re-enable button and restore icon on error
+                    analyzeButton.disabled = false;
+                    analyzeButtonText.textContent = 'Analyze SSL';
+                    analyzeButtonIcon.innerHTML = '<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path></svg>';
+                    // On network error, hide the overall status message and show the error message
+                    overallStatusMessage.classList.add('hidden');
+                    displayError('Network Error!', `Failed to connect to the server or an unexpected error occurred: ${error.message || error}`);
+                });
+            });
+
+            // Function to fetch revocation status asynchronously
+            function fetchRevocationStatus(sslInfo) {
+                return fetch('/get_revocation_status', { // Return the fetch promise
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        serial_number: sslInfo.serial_number,
+                        ocsp_urls_all: sslInfo.ocsp_urls_all,
+                        crl_distribution_points: sslInfo.crl_distribution_points,
+                        leaf_cert_pem: sslInfo.leaf_cert_pem,
+                        issuer_cert_pem: sslInfo.issuer_cert_pem
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("OCSP Status received:", data.ocsp_status); // Debugging log
+                    console.log("CRL Revocation Status received:", data.crl_revocation_status); // Debugging log
+
+                    const ocspStatusElement = document.getElementById('ocsp-status');
+                    const crlStatusElement = document.getElementById('crl-status');
+                    const ocspStatusContainer = document.getElementById('ocsp-status-container');
+                    const crlStatusContainer = document.getElementById('crl-status-container');
+
+                    if (ocspStatusElement) {
+                        ocspStatusElement.textContent = data.ocsp_status;
+                        ocspStatusElement.classList.remove('loading-dots');
+                        // Remove all possible status classes first to ensure clean state
+                        ocspStatusContainer.classList.remove('bg-gray-700', 'futuristic-status-good', 'futuristic-status-error', 'futuristic-status-warning');
+                        if (data.ocsp_status && data.ocsp_status.includes('Revoked')) {
+                            ocspStatusContainer.classList.add('futuristic-status-error');
+                        } else if (data.ocsp_status && (data.ocsp_status.includes('Not Revoked') || data.ocsp_status.includes('GOOD'))) {
+                            ocspStatusContainer.classList.add('futuristic-status-good');
+                        } else {
+                            ocspStatusContainer.classList.add('futuristic-status-warning');
+                        }
+                    }
+
+                    if (crlStatusElement) {
+                        crlStatusElement.textContent = data.crl_revocation_status;
+                        crlStatusElement.classList.remove('loading-dots');
+                        // Remove all possible status classes first to ensure clean state
+                        crlStatusContainer.classList.remove('bg-gray-700', 'futuristic-status-good', 'futuristic-status-error', 'futuristic-status-warning');
+                        if (data.crl_revocation_status && data.crl_revocation_status.includes('Revoked')) {
+                            crlStatusContainer.classList.add('futuristic-status-error');
+                        } else if (data.crl_revocation_status && data.crl_revocation_status.includes('Not Revoked')) {
+                            crlStatusContainer.classList.add('futuristic-status-good');
+                        } else {
+                            crlStatusContainer.classList.add('futuristic-status-warning');
+                        }
+                    }
+
+                    // Update currentSslInfo object for summary generation with actual statuses
+                    currentSslInfo.ocsp_status = data.ocsp_status || 'N/A';
+                    currentSslInfo.crl_revocation_status = data.crl_revocation_status || 'N/A';
+
+                    return data; // Return data to chain promises
+                })
+                .catch(error => {
+                    console.error('Error fetching revocation status:', error);
+                    const ocspStatusElement = document.getElementById('ocsp-status');
+                    const crlStatusElement = document.getElementById('crl-status');
+                    const ocspStatusContainer = document.getElementById('ocsp-status-container');
+                    const crlStatusContainer = document.getElementById('crl-status-container');
+
+                    if (ocspStatusElement) {
+                        ocspStatusElement.textContent = `Error: ${error.message || error}`;
+                        ocspStatusElement.classList.remove('loading-dots');
+                        ocspStatusContainer.classList.remove('bg-gray-700', 'futuristic-status-good', 'futuristic-status-error', 'futuristic-status-warning');
+                        ocspStatusContainer.classList.add('futuristic-status-error');
+                    }
+                    if (crlStatusElement) {
+                        crlStatusElement.textContent = `Error: ${error.message || error}`;
+                        crlStatusElement.classList.remove('loading-dots');
+                        crlStatusContainer.classList.remove('bg-gray-700', 'futuristic-status-good', 'futuristic-status-error', 'futuristic-status-warning');
+                        crlStatusContainer.classList.add('futuristic-status-error');
+                    }
+                    throw error; // Re-throw to propagate to Promise.all
+                });
+            }
+
+            // Function to fetch Gemini summary
+            function fetchGeminiSummary(sslInfoForSummary) {
+                const summaryElement = document.getElementById('gemini-summary');
+                summaryElement.textContent = 'Generating summary...'; // Set loading text for summary
+                summaryElement.classList.add('loading-dots'); // Add loading animation
+                summaryElement.style.color = ''; // Reset color
+
+                return fetch('/summarize_certificate', { // Return the fetch promise
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ ssl_info: sslInfoForSummary })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.summary) {
+                        summaryElement.textContent = data.summary;
+                        summaryElement.classList.remove('loading-dots');
+                    } else if (data.error) {
+                        summaryElement.textContent = `Error generating summary: ${data.error}`;
+                        summaryElement.classList.remove('loading-dots');
+                        summaryElement.style.color = 'red';
+                    }
+                    return data; // Return data to chain promises
+                })
+                .catch(error => {
+                    summaryElement.textContent = `Network error during summary generation: ${error.message || error}`;
+                    summaryElement.classList.remove('loading-dots');
+                    summaryElement.style.color = 'red';
+                    throw error; // Re-throw to propagate to Promise.all
+                });
+            }
+        });
+    </script>
+</body>
+</html>
